@@ -1,44 +1,37 @@
-import { Client, LocalAuth } from 'whatsapp-web.js';
-import qrcode from 'qrcode-terminal';
-import express from 'express';
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
+const express = require('express');
 
 const client = new Client({
-  authStrategy: new LocalAuth({
-    clientId: "main-session",
-    dataPath: "./session"
-  }),
+  authStrategy: new LocalAuth(), // session is saved
   puppeteer: {
     headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-gpu'
-    ]
+    args: ['--no-sandbox']
   }
 });
 
+const toNumbers = [
+  '918377884512@c.us',
+  '919711720145@c.us',
+  '918287154627@c.us'
+];
+
 client.on('qr', qr => {
-  console.log("🔄 QR Code received, scan with your WhatsApp:");
+  console.log('📲 Scan this QR code to login:');
   qrcode.generate(qr, { small: true });
 });
 
 client.on('ready', () => {
-  console.log('✅ WhatsApp is ready!');
-  const numbers = ['+911234567890', '+919876543210', '+911112223334']; // Replace with your numbers
-  numbers.forEach(number => {
-    client.sendMessage(number + '@c.us', '✅ The bot is now online!');
+  console.log('✅ WhatsApp bot is ready!');
+  toNumbers.forEach(number => {
+    client.sendMessage(number, '✅ The WhatsApp bot is now LIVE!');
   });
 });
 
 client.initialize();
 
+// Express server (Render requires this)
 const app = express();
-app.get('/', (req, res) => {
-  res.send('🚀 WhatsApp API running on port 7860');
-});
-app.listen(7860, () => console.log("🚀 WhatsApp API running on port 7860"));
+const PORT = process.env.PORT || 3000;
+app.get('/', (_, res) => res.send('✅ WhatsApp bot is running'));
+app.listen(PORT, () => console.log(`🌐 Server running on port ${PORT}`));
